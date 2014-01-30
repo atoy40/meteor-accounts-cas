@@ -97,7 +97,8 @@ var casTicket = function (req, token, callback) {
   }
 
   var result = _retrieveCredential(options.cas.credentialToken);
-  var user = Accounts.updateOrCreateUserFromExternalService("cas", result);
+  var options = { profile: { name: result.id } };
+  var user = Accounts.updateOrCreateUserFromExternalService("cas", result, options);
 
   return user;
 });
