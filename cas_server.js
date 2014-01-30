@@ -97,17 +97,7 @@ var casTicket = function (req, token, callback) {
   }
 
   var result = _retrieveCredential(options.cas.credentialToken);
-
-  var user = Accounts.updateOrCreateUserFromExternalService(
-    "cas",
-    result
-  );
-
-  // set username
-  Meteor.users.update(
-    { _id: user.id },
-    { $set: { username: result.id}}
-  );
+  var user = Accounts.updateOrCreateUserFromExternalService("cas", result);
 
   return user;
 });
