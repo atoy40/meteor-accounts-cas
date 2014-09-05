@@ -1,5 +1,5 @@
-meteor-accounts-cas
-==================
+atoy40:accounts-cas
+===================
 
 CAS login support.
 
@@ -22,8 +22,10 @@ put CAS settings in Meteor.settings (for exemple using METEOR_SETTINGS env or --
 }
 ```
 
-The, to start authentication:
+Then, to start authentication, you have to call the following method from the client (for example in a click handler) :
 
 ```
 Meteor.loginWithCas([callback]);
 ```
+
+It must open a popup containing you CAS login from. The popup will be close immediately if you are already logged with your CAS server.

@@ -1,8 +1,0 @@
-{
-  "name": "accounts-cas",
-  "description": "Integrate CAS single sign-on system within Meteor accounts",
-  "homepage": "https://github.com/atoy40/meteor-accounts-cas",
-  "author": "Anthony Hinsinger",
-  "version": "0.0.1",
-  "git": "https://github.com/atoy40/meteor-accounts-cas.git"
-}

@@ -1,8 +1,12 @@
 Package.describe({
-  summary: "CAS support for accounts"
+  summary: "CAS support for accounts",
+  version: "0.0.2",
+  name: "atoy40:accounts-cas",
+  git: "https://github.com/atoy40/meteor-accounts-cas"
 });
 
-Package.on_use(function(api) {
+Package.onUse(function(api) {
+  api.versionsFrom('METEOR@0.9.0');
   api.use('routepolicy', 'server');
   api.use('webapp', 'server');
   api.use('accounts-base', ['client', 'server']);
@@ -10,8 +14,11 @@ Package.on_use(function(api) {
   api.imply('accounts-base', ['client', 'server']);
   api.use('underscore');
 
-  Npm.depends({cas: "0.0.3"});
 
   api.add_files('cas_client.js', 'client');
   api.add_files('cas_server.js', 'server');
+});
+
+Npm.depends({
+  cas: "0.0.3"
 });
