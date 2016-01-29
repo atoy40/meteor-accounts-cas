@@ -118,6 +118,6 @@ var _retrieveCredential = function(credentialToken) {
 
 var closePopup = function(res) {
   res.writeHead(200, {'Content-Type': 'text/html'});
-  var content = '<html><head><script>window.close()</script></head></html>';
+  var content = '<html><body><div id="popupCanBeClosed"></div></body></html>';
   res.end(content, 'utf-8');
 }

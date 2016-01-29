@@ -24,6 +24,9 @@ Meteor.loginWithCas = function(callback) {
 
     var checkPopupOpen = setInterval(function() {
         try {
+	    if(popup && popup.document && popup.document.getElementById('popupCanBeClosed')) {
+                popup.close();
+      	    }
             // Fix for #328 - added a second test criteria (popup.closed === undefined)
             // to humour this Android quirk:
             // http://code.google.com/p/android/issues/detail?id=21061
@@ -66,7 +69,7 @@ var openCenteredPopup = function(url, width, height) {
   var features = ('width=' + width + ',height=' + height +
       ',left=' + left + ',top=' + top + ',scrollbars=yes');
 
-  var newwindow = window.open(url, 'Login', features);
+  var newwindow = window.open(url, '_blank', features);
   if (newwindow.focus)
     newwindow.focus();
 return newwindow;
