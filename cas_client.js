@@ -11,9 +11,17 @@ Meteor.loginWithCas = function(callback) {
 
     var settings = Meteor.settings.public.cas;
 
+    var serviceURL = '';
+
+    if (settings.proxyUrl) {
+        serviceURL = settings.proxyUrl + "_cas/";
+    } else {
+        serviceURL = Meteor.absoluteUrl('_cas/');
+    }
+
     var loginUrl = settings.loginUrl +
         "?" + (settings.service || "service") + "=" +
-        Meteor.absoluteUrl('_cas/') +
+        serviceURL +
         credentialToken;
 
     var popup = openCenteredPopup(

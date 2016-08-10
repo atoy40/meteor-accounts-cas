@@ -58,9 +58,17 @@ var casTicket = function (req, token, callback) {
   var parsedUrl = url.parse(req.url, true);
   var ticketId = parsedUrl.query.ticket;
 
+  var serviceURL = '';
+
+  if (Meteor.settings.cas.proxyUrl) {
+      serviceURL = Meteor.settings.cas.proxyUrl + "_cas/";
+  } else {
+      serviceURL = Meteor.absoluteUrl() + "_cas/";
+  }
+
   var cas = new CAS({
     base_url: Meteor.settings.cas.baseUrl,
-    service: Meteor.absoluteUrl() + "_cas/" + token
+    service: serviceURL + token
   });
 
   cas.validate(ticketId, function(err, status, username) {
@@ -78,7 +86,7 @@ var casTicket = function (req, token, callback) {
     callback();
   });
 
-  return; 
+  return;
 };
 
 /*
