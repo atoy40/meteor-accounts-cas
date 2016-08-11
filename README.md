@@ -24,7 +24,7 @@ put CAS settings in Meteor.settings (for example using METEOR_SETTINGS env or --
 }
 ```
 
-The ```proxyUrl``` Key:Value pair is only needed if you need to force the callback url. Needed when running through a proxy. Without this value it will read the URL site.
+The ```proxyUrl``` Key:Value pair is only needed if you need to force the callback url. Needed when running through a proxy. Without this value it will read the site URL.
 
 Then, to start authentication, you have to call the following method from the client (for example in a click handler) :
 
