@@ -52,30 +52,28 @@ class CAS {
       res.setEncoding('utf8');
       let response = '';
       res.on('data', (chunk) => {
-        console.log('onData');
         response += chunk;
       });
 
       res.on('end', (error) => {
         if (error) {
           console.log('error callback');
+          console.log(error);
           callback(undefined, false);
         } else {
           xmlParser.parseString(response, (err, result) => {
             if (err) {
-              console.log('Parsing error');
               callback({message: 'Bad response format. XML could not parse it'});
             } else {
               if (result['cas:serviceResponse']['cas:authenticationSuccess']) {
-                console.log('Auth success');
                 const userData = {
                   lastName: result['cas:serviceResponse']['cas:authenticationSuccess'][0]['cas:nom'][0],
                   firstName: result['cas:serviceResponse']['cas:authenticationSuccess'][0]['cas:prenom'][0],
                   id: result['cas:serviceResponse']['cas:authenticationSuccess'][0]['cas:user'][0],
                 }
+                console.log(userData);
                 callback(undefined, true, userData);
               } else {
-                console.log('Auth failure');
                 callback(undefined, false);
               }
             }
@@ -88,6 +86,7 @@ class CAS {
 ////// END OF CAS MODULE
 
 let _casCredentialTokens = {};
+let _userData = {};
 
 RoutePolicy.declare('/_cas/', 'network');
 
@@ -97,7 +96,6 @@ WebApp.connectHandlers.use((req, res, next) => {
   // else is wrapping this in a fiber automatically
 
   Fiber(() => {
-    console.log('trigger middleware');
     middleware(req, res, next);
   }).run();
 });
@@ -151,6 +149,7 @@ const casTicket = (req, token, callback) => {
   });
 
   cas.validate(ticketId, (err, status, userData) => {
+    console.log(userData);
     if (err) {
       console.log("accounts-cas: error when trying to validate " + err);
       console.log(err);
@@ -159,6 +158,7 @@ const casTicket = (req, token, callback) => {
         console.log("accounts-cas: user validated " ); // todo add user name
         console.log(userData);
         _casCredentialTokens[token] = { id: userData.id };
+        _userData = userData;
       } else {
         console.log("accounts-cas: unable to validate " + ticketId);
       }
@@ -176,6 +176,9 @@ const casTicket = (req, token, callback) => {
  */
  Accounts.registerLoginHandler((options) => {
 
+  console.log('registerLoginHandler options');
+  console.log(options);
+
   if (!options.cas)
     return undefined;
 
@@ -186,10 +189,12 @@ const casTicket = (req, token, callback) => {
 
   const result = _retrieveCredential(options.cas.credentialToken);
 
-  options = { profile: { firstName: options.firstName, lastName: options.lastName, loiretUserId: options.id }, emails: [], roles: ['student']};
-  const user = Accounts.updateOrCreateUserFromExternalService("cas", result, options);
+  options = { profile: { firstName: _userData.firstName, lastName: _userData.lastName, loiretUserId: _userData.id }, emails: [], roles: ['student']};
+  const queryResult = Accounts.updateOrCreateUserFromExternalService("cas", result, options);
+  console.log(queryResult.userId);
+  Roles.setUserRoles(queryResult.userId, 'student');
 
-  return user;
+  return queryResult;
 });
 
 const _hasCredential = (credentialToken) => {
