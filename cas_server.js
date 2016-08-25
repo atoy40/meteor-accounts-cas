@@ -71,7 +71,6 @@ class CAS {
                   firstName: result['cas:serviceResponse']['cas:authenticationSuccess'][0]['cas:prenom'][0],
                   id: result['cas:serviceResponse']['cas:authenticationSuccess'][0]['cas:user'][0],
                 }
-                console.log(userData);
                 callback(undefined, true, userData);
               } else {
                 callback(undefined, false);
@@ -156,7 +155,6 @@ const casTicket = (req, token, callback) => {
     } else {
       if (status) {
         console.log("accounts-cas: user validated " ); // todo add user name
-        console.log(userData);
         _casCredentialTokens[token] = { id: userData.id };
         _userData = userData;
       } else {
@@ -175,10 +173,6 @@ const casTicket = (req, token, callback) => {
  *
  */
  Accounts.registerLoginHandler((options) => {
-
-  console.log('registerLoginHandler options');
-  console.log(options);
-
   if (!options.cas)
     return undefined;
 
@@ -191,7 +185,6 @@ const casTicket = (req, token, callback) => {
 
   options = { profile: { firstName: _userData.firstName, lastName: _userData.lastName, loiretUserId: _userData.id }, emails: [], roles: ['student']};
   const queryResult = Accounts.updateOrCreateUserFromExternalService("cas", result, options);
-  console.log(queryResult.userId);
   Roles.setUserRoles(queryResult.userId, 'student');
 
   return queryResult;
