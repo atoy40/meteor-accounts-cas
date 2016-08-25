@@ -3,6 +3,7 @@
 const Fiber = Npm.require('fibers');
 const http = Npm.require('http');
 const url = Npm.require('url');
+const xmlParser = Npm.require('xml2js');
 
 // Library
 class CAS {
@@ -49,34 +50,37 @@ class CAS {
 
       // Read result
       res.setEncoding('utf8');
-      var response = '';
+      let response = '';
       res.on('data', (chunk) => {
         console.log('onData');
         response += chunk;
       });
 
       res.on('end', (error) => {
-        console.log('onEnd');
-        const sections = response.split('\n');
-        console.log(sections.length);
-        console.log('sections');
-        console.log(sections);
-        console.log('/sections');
-        if (sections.length >= 1) {
-          console.log('section 0: ' + sections[0]);
-          // Issue there?
-          if (sections[0] == 'no') {
-            callback(undefined, false);
-            return;
-          } else if (sections.length >= 2) {
-            // console.log('section 0: ' + sections[0]);
-            callback(undefined, true, sections[1]);
-            return;
-          }
+        if (error) {
+          console.log('error callback');
+          callback(undefined, false);
+        } else {
+          xmlParser.parseString(response, (err, result) => {
+            if (err) {
+              console.log('Parsing error');
+              callback({message: 'Bad response format. XML could not parse it'});
+            } else {
+              if (result['cas:serviceResponse']['cas:authenticationSuccess']) {
+                console.log('Auth success');
+                const userData = {
+                  lastName: result['cas:serviceResponse']['cas:authenticationSuccess'][0]['cas:nom'][0],
+                  firstName: result['cas:serviceResponse']['cas:authenticationSuccess'][0]['cas:prenom'][0],
+                  id: result['cas:serviceResponse']['cas:authenticationSuccess'][0]['cas:user'][0],
+                }
+                callback(undefined, true, userData);
+              } else {
+                console.log('Auth failure');
+                callback(undefined, false);
+              }
+            }
+          });
         }
-
-        // Format was not correct, error
-        callback({message: 'Bad response format.'});
       });
     });
   }
@@ -146,14 +150,15 @@ const casTicket = (req, token, callback) => {
     service: Meteor.absoluteUrl() + "_cas/" + token,
   });
 
-  cas.validate(ticketId, (err, status, username) => {
+  cas.validate(ticketId, (err, status, userData) => {
     if (err) {
       console.log("accounts-cas: error when trying to validate " + err);
       console.log(err);
     } else {
       if (status) {
-        console.log("accounts-cas: user validated " + username);
-        _casCredentialTokens[token] = { id: username };
+        console.log("accounts-cas: user validated " ); // todo add user name
+        console.log(userData);
+        _casCredentialTokens[token] = { id: userData.id };
       } else {
         console.log("accounts-cas: unable to validate " + ticketId);
       }
@@ -180,7 +185,8 @@ const casTicket = (req, token, callback) => {
   }
 
   const result = _retrieveCredential(options.cas.credentialToken);
-  options = { profile: { name: result.id } };
+
+  options = { profile: { firstName: options.firstName, lastName: options.lastName, loiretUserId: options.id }, emails: [], roles: ['student']};
   const user = Accounts.updateOrCreateUserFromExternalService("cas", result, options);
 
   return user;
