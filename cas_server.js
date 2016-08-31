@@ -148,13 +148,12 @@ const casTicket = (req, token, callback) => {
   });
 
   cas.validate(ticketId, (err, status, userData) => {
-    console.log(userData);
     if (err) {
       console.log("accounts-cas: error when trying to validate " + err);
       console.log(err);
     } else {
       if (status) {
-        console.log("accounts-cas: user validated " ); // todo add user name
+        console.log("accounts-cas: user validated " + userData.id);
         _casCredentialTokens[token] = { id: userData.id };
         _userData = userData;
       } else {
