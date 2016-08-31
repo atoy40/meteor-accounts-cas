@@ -1,7 +1,7 @@
 "use strict";
 
 const Fiber = Npm.require('fibers');
-const http = Npm.require('http');
+const https = Npm.require('https');
 const url = Npm.require('url');
 const xmlParser = Npm.require('xml2js');
 
@@ -19,13 +19,13 @@ class CAS {
     }
 
     const cas_url = url.parse(options.base_url);
-    if (cas_url.protocol != 'http:' ) {
-      throw new Error('Only http CAS servers are supported.');
+    if (cas_url.protocol != 'https:' ) {
+      throw new Error('Only https CAS servers are supported.');
     } else if (!cas_url.hostname) {
       throw new Error('Option `base_url` must be a valid url like: https://example.com/cas');
     } else {
       this.hostname = cas_url.host;
-      this.port = 80;// Should be 443 for https
+      this.port = 443;// Should be 443 for https
       this.base_path = cas_url.pathname;
     }
 
@@ -42,7 +42,7 @@ class CAS {
       }),
     };
 
-    http.get(httparams, (res) => {
+    https.get(httparams, (res) => {
       res.on('error', (e) => {
         console.log('error' + e);
         callback(e);
