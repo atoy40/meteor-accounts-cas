@@ -1,8 +1,8 @@
 Package.describe({
   summary: "CAS (hacked) support for accounts",
   version: "0.0.4",
-  name: "vnorguet:accounts-cas-http",
-  git: "https://github.com/vnorguet/meteor-accounts-cas-http"
+  name: "vnorguet:accounts-cas",
+  git: "https://github.com/vnorguet/meteor-accounts-cas"
 });
 
 Package.onUse(function(api) {

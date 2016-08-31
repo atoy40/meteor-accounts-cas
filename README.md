@@ -1,5 +1,15 @@
-atoy40:accounts-cas
+This is a fork of: atoy40:accounts-cas https://atmospherejs.com/atoy40/accounts-cas
 ===================
+
+## Improvements to atoy40 version
+* Handle (non-standard) http protocol (see tag 'http-only')
+* Use xmlparser instead of newline parsing
+
+## TODO
+* Add tests
+* Submit changes as a PR
+* Cleanup code
+
 
 CAS login support.
 
