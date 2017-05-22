@@ -1,8 +1,8 @@
 Package.describe({
   summary: "CAS support for accounts",
-  version: "0.0.3",
-  name: "atoy40:accounts-cas",
-  git: "https://github.com/atoy40/meteor-accounts-cas"
+  version: "0.0.1",
+  name: "anrizal:accounts-cas",
+  git: "https://github.com/anrizal/meteor-accounts-cas"
 });
 
 Package.onUse(function(api) {
@@ -22,7 +22,7 @@ Package.onUse(function(api) {
 });
 
 Npm.depends({
-  cas: "0.0.3"
+  cas: "https://github.com/anrizal/node-cas/tarball/2baed530842e7a437f8f71b9346bcac8e84773cc"
 });
 
 Cordova.depends({

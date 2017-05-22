@@ -1,16 +1,24 @@
-atoy40:accounts-cas
+anrizal:accounts-cas
 ===================
 
 CAS login support.
 
+Support CAS 1.0 and CAS 2.0
+
 ## Usage
 
-put CAS settings in Meteor.settings (for exemple using METEOR_SETTINGS env or --settings) like so:
+put CAS settings in Meteor.settings (for example using METEOR_SETTINGS env or --settings) like so:
+
+if casVersion is not defined, it will assume you use CAS 1.0
+
+This package depends on NPM node-cas https://github.com/anrizal/node-cas which is forked from https://github.com/kcbanner/node-cas 
+There is a pull-request to https://github.com/kcbanner/node-cas. If the pull-request accepted, I will change the dependency. 
 
 ```
 "cas": {
 	"baseUrl": "https://sso.univ-pau.fr/cas/",
- 	"autoClose": true
+ 	"autoClose": true,
+ 	"casVersion": 2.0
 },
 "public": {
 	"cas": {
