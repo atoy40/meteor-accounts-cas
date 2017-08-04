@@ -6,6 +6,17 @@ This is a merged repository of useful forks of: atoy40:accounts-cas https://atmo
 * Handle (non-standard) http protocol (see tag 'http-only')
 * Use xmlparser instead of newline parsing
 
+## Install
+
+```
+cd ~site
+mkdir packages
+cd packages
+git clone https://github.com/xaionaro/meteor-accounts-cas
+cd ~site
+meteor add xaionaro:accounts-cas
+```
+
 ## TODO
 * Add tests
 * Submit changes as a PR
