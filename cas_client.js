@@ -14,7 +14,14 @@ Meteor.initCas = function(callback) {
 
     Accounts.callLoginMethod({
         methodArguments: [{ cas: { credentialToken: casTokenMatch[1] } }],
-        userCallback: callback
+        userCallback: function(err){
+            if (err == null) {
+                // should we do anything on success?
+            }
+            if (callback != null) {
+                callback(err);
+            }
+        }
     });
 }
 
