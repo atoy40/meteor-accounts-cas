@@ -21,6 +21,7 @@ Package.onUse(function(api) {
 });
 
 Npm.depends({
+  xml2js: "0.4.17",
   cas: "https://github.com/anrizal/node-cas/tarball/2baed530842e7a437f8f71b9346bcac8e84773cc"
 });
 

@@ -25,15 +25,15 @@ There is a pull-request to https://github.com/kcbanner/node-cas. If the pull-req
 
 ```
 "cas": {
-	"baseUrl": "https://sso.univ-pau.fr/cas/",
- 	"proxyUrl": "https://local-proxy",
- 	"autoClose": true,
- 	"casVersion": 2.0
+	"validateUrl": "https://cas.example.com/serviceValidate",
+	"proxyUrl": "https://site.example.com",
+	"autoClose": true,
+	"casVersion": 2.0,
 },
 "public": {
 	"cas": {
-		"loginUrl": "https://sso.univ-pau.fr/cas/login",
-        "proxyUrl": "https://local-proxy",
+		"loginUrl": "https://cas.example.com/login",
+		"proxyUrl": "https://site.example.com",
 		"serviceParam": "service",
 		"popupWidth": 810,
 		"popupHeight": 610

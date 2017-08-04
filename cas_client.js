@@ -20,7 +20,7 @@ Meteor.loginWithCas = function(callback) {
     }
 
     var loginUrl = settings.loginUrl +
-        "?" + (settings.service || "service") + "=" +
+        "?" + (settings.serviceParam || "service") + "=" +
         serviceURL +
         credentialToken;
 

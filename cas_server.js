@@ -10,23 +10,23 @@ class CAS {
   constructor(options) {
     options = options || {};
 
-    if (!options.base_url) {
-      throw new Error('Required CAS option `base_url` missing.');
+    if (!options.validate_url) {
+      throw new Error('Required CAS option `validate_url` missing.');
     }
 
     if (!options.service) {
       throw new Error('Required CAS option `service` missing.');
     }
 
-    const cas_url = url.parse(options.base_url);
+    const cas_url = url.parse(options.validate_url);
     if (cas_url.protocol != 'https:' ) {
       throw new Error('Only https CAS servers are supported.');
     } else if (!cas_url.hostname) {
-      throw new Error('Option `base_url` must be a valid url like: https://example.com/cas');
+      throw new Error('Option `validateUrl` must be a valid url like: https://example.com/cas/serviceValidate');
     } else {
       this.hostname = cas_url.host;
       this.port = 443;// Should be 443 for https
-      this.base_path = cas_url.pathname;
+      this.validate_path = cas_url.pathname;
     }
 
     this.service = options.service;
@@ -37,7 +37,7 @@ class CAS {
       host: this.hostname,
       port: this.port,
       path: url.format({
-        pathname: this.base_path,
+        pathname: this.validate_path,
         query: {ticket: ticket, service: this.service},
       }),
     };
@@ -63,14 +63,21 @@ class CAS {
         } else {
           xmlParser.parseString(response, (err, result) => {
             if (err) {
+              console.log('Bad response format.');
               callback({message: 'Bad response format. XML could not parse it'});
             } else {
+              if (result['cas:serviceResponse'] == null) {
+                console.log('Empty response.');
+                callback({message: 'Empty response.'});
+              }
               if (result['cas:serviceResponse']['cas:authenticationSuccess']) {
-                const userData = {
-                  lastName: result['cas:serviceResponse']['cas:authenticationSuccess'][0]['cas:nom'][0],
-                  firstName: result['cas:serviceResponse']['cas:authenticationSuccess'][0]['cas:prenom'][0],
+                var userData = {
                   id: result['cas:serviceResponse']['cas:authenticationSuccess'][0]['cas:user'][0],
                 }
+                const attributes = result['cas:serviceResponse']['cas:authenticationSuccess'][0]['cas:attributes'][0];
+                for (var fieldName in attributes) {
+                  userData[fieldName] = attributes[fieldName][0];
+                };
                 callback(undefined, true, userData);
               } else {
                 callback(undefined, false);
@@ -133,9 +140,8 @@ const middleware = (req, res, next) => {
 
 const casTicket = (req, token, callback) => {
   // get configuration
-  if (!Meteor.settings.cas && !Meteor.settings.cas.validate) {
-    console.log("accounts-cas: unable to get configuration");
-    callback();
+  if (!Meteor.settings.cas/* || !Meteor.settings.cas.validate*/) {
+    throw new Error('accounts-cas: unable to get configuration.');
   }
 
   // get ticket and validate.
@@ -151,8 +157,8 @@ const casTicket = (req, token, callback) => {
   }
 
   const cas = new CAS({
-    base_url: Meteor.settings.cas.baseUrl,
-    service: serviceURL + token
+    validate_url: Meteor.settings.cas.validateUrl,
+    service: serviceURL + token,
     version: Meteor.settings.cas.casVersion
   });
 
@@ -191,9 +197,9 @@ const casTicket = (req, token, callback) => {
 
   const result = _retrieveCredential(options.cas.credentialToken);
 
-  options = { profile: { firstName: _userData.firstName, lastName: _userData.lastName, loiretUserId: _userData.id }, emails: [], roles: ['student']};
+  options = { profile: _userData };
   const queryResult = Accounts.updateOrCreateUserFromExternalService("cas", result, options);
-  Roles.setUserRoles(queryResult.userId, 'student');
+  //Roles.setUserRoles(queryResult.userId, 'user');
 
   return queryResult;
 });
