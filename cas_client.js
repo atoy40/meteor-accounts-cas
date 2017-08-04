@@ -18,7 +18,7 @@ Meteor.initCas = function(callback) {
     });
 }
 
-Meteor.loginWithCas = function(callback) {
+Meteor.loginWithCas = function(options, callback) {
 
     var credentialToken = Random.id();
 
@@ -30,7 +30,11 @@ Meteor.loginWithCas = function(callback) {
 
     var settings = Meteor.settings.public.cas;
 
-    var serviceURL = addParameterToURL(window.location.href.replace('#', ''), 'casToken='+credentialToken);
+    var backURL = window.location.href.replace('#', '');
+    if (options != null && options.redirectUrl != null)
+        backURL = options.redirectUrl;
+
+    var serviceURL = addParameterToURL(backURL, 'casToken='+credentialToken);
 
     var loginUrl = settings.loginUrl +
         "?" + (settings.serviceParam || "service") + "=" +
