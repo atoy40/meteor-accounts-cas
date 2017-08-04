@@ -1,9 +1,18 @@
-anrizal:accounts-cas
+This is a merged repository of useful forks of: atoy40:accounts-cas https://atmospherejs.com/atoy40/accounts-cas
 ===================
 
-CAS login support.
+## Improvements to atoy40 version
+* CAS 2.0 support
+* Handle (non-standard) http protocol (see tag 'http-only')
+* Use xmlparser instead of newline parsing
 
-Support CAS 1.0 and CAS 2.0
+## TODO
+* Add tests
+* Submit changes as a PR
+* Cleanup code
+
+
+CAS login support.
 
 ## Usage
 
