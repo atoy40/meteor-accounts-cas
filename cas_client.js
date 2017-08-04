@@ -1,7 +1,7 @@
 
 function addParameterToURL(url, param){
   var urlSplit = url.split('?');
-  return url+(urlSplit.length>0 ? '&':'?') + param;
+  return url+(urlSplit.length>0 ? '?':'&') + param;
 }
 
 Meteor.initCas = function(callback) {
@@ -9,6 +9,8 @@ Meteor.initCas = function(callback) {
     if (casTokenMatch == null) {
         return;
     }
+
+    window.history.pushState('', document.title, window.location.href.replace(/([&?])casToken=[^&]+[&]?/, '$1').replace(/[?&]+$/g, ''));
 
     Accounts.callLoginMethod({
         methodArguments: [{ cas: { credentialToken: casTokenMatch[1] } }],
