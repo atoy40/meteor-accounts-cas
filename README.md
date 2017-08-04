@@ -3,7 +3,7 @@ This is a merged repository of useful forks of: atoy40:accounts-cas https://atmo
 
 ## Improvements to atoy40 version
 * CAS 2.0 support
-* Handle (non-standard) http protocol (see tag 'http-only')
+* Added support of "redirect" instead of "popup window" (disable the popup window)
 * Use xmlparser instead of newline parsing
 
 ## Install
@@ -37,22 +37,22 @@ There is a pull-request to https://github.com/kcbanner/node-cas. If the pull-req
 ```
 "cas": {
 	"validateUrl": "https://cas.example.com/serviceValidate",
-	"proxyUrl": "https://site.example.com",
 	"autoClose": true,
 	"casVersion": 2.0,
+	"popup": true,
 },
 "public": {
 	"cas": {
 		"loginUrl": "https://cas.example.com/login",
-		"proxyUrl": "https://site.example.com",
 		"serviceParam": "service",
 		"popupWidth": 810,
-		"popupHeight": 610
+		"popupHeight": 610,
+		"popup": true,
 	}
 }
 ```
 
-The ```proxyUrl``` Key:Value pair is only needed if you need to force the callback url. Needed when running through a proxy. Without this value it will read the site URL.
+`proxyUrl` is not required. Setup [ROOT_URL](http://docs.meteor.com/api/core.html#Meteor-absoluteUrl) environment variable instead.
 
 Then, to start authentication, you have to call the following method from the client (for example in a click handler) :
 

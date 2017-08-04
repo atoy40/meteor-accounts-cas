@@ -1,4 +1,8 @@
 
+function addParameterToURL(url, param){
+  return url+(url.split('?')[1] ? '&':'?') + param;
+}
+
 Meteor.loginWithCas = function(callback) {
 
     var credentialToken = Random.id();
@@ -11,18 +15,16 @@ Meteor.loginWithCas = function(callback) {
 
     var settings = Meteor.settings.public.cas;
 
-    var serviceURL = '';
-
-    if (settings.proxyUrl) {
-        serviceURL = settings.proxyUrl + "_cas/";
-    } else {
-        serviceURL = Meteor.absoluteUrl('_cas/');
-    }
+    var serviceURL = addParameterToURL(window.location.href, 'casToken='+credentialToken);
 
     var loginUrl = settings.loginUrl +
         "?" + (settings.serviceParam || "service") + "=" +
-        serviceURL +
-        credentialToken;
+        serviceURL
+
+    if (settings.popup == false) {
+      window.location = loginUrl;
+      return;
+    }
 
     var popup = openCenteredPopup(
         loginUrl,
@@ -80,5 +82,5 @@ var openCenteredPopup = function(url, width, height) {
   var newwindow = window.open(url, '_blank', features);
   if (newwindow.focus)
     newwindow.focus();
-return newwindow;
+  return newwindow;
 };

@@ -11,7 +11,7 @@ class CAS {
     options = options || {};
 
     if (!options.validate_url) {
-      throw new Error('Required CAS option `validate_url` missing.');
+      throw new Error('Required CAS option `validateUrl` missing.');
     }
 
     if (!options.service) {
@@ -94,7 +94,7 @@ class CAS {
 let _casCredentialTokens = {};
 let _userData = {};
 
-RoutePolicy.declare('/_cas/', 'network');
+//RoutePolicy.declare('/_cas/', 'network');
 
 // Listen to incoming OAuth http requests
 WebApp.connectHandlers.use((req, res, next) => {
@@ -113,56 +113,58 @@ const middleware = (req, res, next) => {
     const barePath = req.url.substring(0, req.url.indexOf('?'));
     const splitPath = barePath.split('/');
 
-    // Any non-cas request will continue down the default
+    urlParsed = url.parse(req.url, true);
+
+    // Getting the ticket (if it's defined in GET-params)
+    // If no ticket, then request will continue down the default
     // middlewares.
-    if (splitPath[1] !== '_cas') {
+    const query = urlParsed.query;
+    if (query == null) {
+      next();
+      return;
+    }
+    const ticket = query.ticket;
+    if (ticket == null) {
       next();
       return;
     }
 
+    const serviceUrl = Meteor.absoluteUrl(urlParsed.href.replace(/^\//g, '')).replace(/([&?])ticket=[^&]+[&]?/g, '$1').replace(/[?&]+$/g, '');
+    const redirectUrl = serviceUrl.replace(/([&?])casToken=[^&]+[&]?/g, '$1').replace(/[?&]+$/g, '');
+
+    console.log('urls:', '<'+serviceUrl+'>', '<'+redirectUrl+'>');
+
     // get auth token
-    const credentialToken = splitPath[2];
+    const credentialToken = query.casToken;
     if (!credentialToken) {
-      closePopup(res);
+      end(res, redirectUrl);
       return;
     }
 
     // validate ticket
-    casTicket(req, credentialToken, () => {
-      closePopup(res);
+    casValidate(req, ticket, credentialToken, serviceUrl, () => {
+      end(res, redirectUrl);
     });
 
   } catch (err) {
     console.log("account-cas: unexpected error : " + err.message);
-    closePopup(res);
+    end(res, redirectUrl);
   }
 };
 
-const casTicket = (req, token, callback) => {
+const casValidate = (req, ticket, token, service, callback) => {
   // get configuration
   if (!Meteor.settings.cas/* || !Meteor.settings.cas.validate*/) {
     throw new Error('accounts-cas: unable to get configuration.');
   }
 
-  // get ticket and validate.
-  const parsedUrl = url.parse(req.url, true);
-  const ticketId = parsedUrl.query.ticket;
-
-  var serviceURL = '';
-
-  if (Meteor.settings.cas.proxyUrl) {
-      serviceURL = Meteor.settings.cas.proxyUrl + "_cas/";
-  } else {
-      serviceURL = Meteor.absoluteUrl() + "_cas/";
-  }
-
   const cas = new CAS({
     validate_url: Meteor.settings.cas.validateUrl,
-    service: serviceURL + token,
+    service: service,
     version: Meteor.settings.cas.casVersion
   });
 
-  cas.validate(ticketId, (err, status, userData) => {
+  cas.validate(ticket, (err, status, userData) => {
     if (err) {
       console.log("accounts-cas: error when trying to validate " + err);
       console.log(err);
@@ -172,7 +174,7 @@ const casTicket = (req, token, callback) => {
         _casCredentialTokens[token] = { id: userData.id };
         _userData = userData;
       } else {
-        console.log("accounts-cas: unable to validate " + ticketId);
+        console.log("accounts-cas: unable to validate " + ticket);
       }
     }
     callback();
@@ -218,7 +220,25 @@ const _retrieveCredential = (credentialToken) => {
 }
 
 const closePopup = (res) => {
+  if (Meteor.settings.cas && Meteor.settings.cas.popup == false) {
+    return;
+  }
   res.writeHead(200, {'Content-Type': 'text/html'});
   const content = '<html><body><div id="popupCanBeClosed"></div></body></html>';
   res.end(content, 'utf-8');
+}
+
+const redirect = (res, whereTo) => {
+  res.writeHead(302, {'Location': whereTo});
+  const content = '<html><head><meta http-equiv="refresh" content="0; url='+whereTo+'" /></head><body>Redirection to <a href='+whereTo+'>'+whereTo+'</a></body></html>';
+  res.end(content, 'utf-8');
+  return
+}
+
+const end = (res, whereTo) => {
+  if (Meteor.settings.cas && Meteor.settings.cas.popup == false) {
+    redirect(res, whereTo);
+  } else {
+    closePopup(res);
+  }
 }
