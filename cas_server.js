@@ -142,9 +142,17 @@ const casTicket = (req, token, callback) => {
   const parsedUrl = url.parse(req.url, true);
   const ticketId = parsedUrl.query.ticket;
 
+  var serviceURL = '';
+
+  if (Meteor.settings.cas.proxyUrl) {
+      serviceURL = Meteor.settings.cas.proxyUrl + "_cas/";
+  } else {
+      serviceURL = Meteor.absoluteUrl() + "_cas/";
+  }
+
   const cas = new CAS({
     base_url: Meteor.settings.cas.baseUrl,
-    service: Meteor.absoluteUrl() + "_cas/" + token,
+    service: serviceURL + token
     version: Meteor.settings.cas.casVersion
   });
 
