@@ -110,9 +110,6 @@ const middleware = (req, res, next) => {
   // Make sure to catch any exceptions because otherwise we'd crash
   // the runner
   try {
-    const barePath = req.url.substring(0, req.url.indexOf('?'));
-    const splitPath = barePath.split('/');
-
     urlParsed = url.parse(req.url, true);
 
     // Getting the ticket (if it's defined in GET-params)
@@ -130,9 +127,7 @@ const middleware = (req, res, next) => {
     }
 
     const serviceUrl = Meteor.absoluteUrl(urlParsed.href.replace(/^\//g, '')).replace(/([&?])ticket=[^&]+[&]?/g, '$1').replace(/[?&]+$/g, '');
-    const redirectUrl = serviceUrl.replace(/([&?])casToken=[^&]+[&]?/g, '$1').replace(/[?&]+$/g, '');
-
-    console.log('urls:', '<'+serviceUrl+'>', '<'+redirectUrl+'>');
+    const redirectUrl = serviceUrl;//.replace(/([&?])casToken=[^&]+[&]?/g, '$1').replace(/[?&]+$/g, '');
 
     // get auth token
     const credentialToken = query.casToken;

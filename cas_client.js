@@ -1,6 +1,19 @@
 
 function addParameterToURL(url, param){
-  return url+(url.split('?')[1] ? '&':'?') + param;
+  var urlSplit = url.split('?');
+  return url+(urlSplit.length>0 ? '&':'?') + param;
+}
+
+Meteor.initCas = function(callback) {
+    const casTokenMatch = window.location.href.match(/[?&]casToken=([^&]+)/);
+    if (casTokenMatch == null) {
+        return;
+    }
+
+    Accounts.callLoginMethod({
+        methodArguments: [{ cas: { credentialToken: casTokenMatch[1] } }],
+        userCallback: callback
+    });
 }
 
 Meteor.loginWithCas = function(callback) {
@@ -19,7 +32,7 @@ Meteor.loginWithCas = function(callback) {
 
     var loginUrl = settings.loginUrl +
         "?" + (settings.serviceParam || "service") + "=" +
-        serviceURL
+        encodeURIComponent(serviceURL)
 
     if (settings.popup == false) {
       window.location = loginUrl;
