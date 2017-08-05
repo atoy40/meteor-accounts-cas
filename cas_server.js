@@ -72,7 +72,7 @@ class CAS {
               }
               if (result['cas:serviceResponse']['cas:authenticationSuccess']) {
                 var userData = {
-                  id: result['cas:serviceResponse']['cas:authenticationSuccess'][0]['cas:user'][0],
+                  id: result['cas:serviceResponse']['cas:authenticationSuccess'][0]['cas:user'][0].toLowerCase(),
                 }
                 const attributes = result['cas:serviceResponse']['cas:authenticationSuccess'][0]['cas:attributes'][0];
                 for (var fieldName in attributes) {
