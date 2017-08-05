@@ -1,5 +1,31 @@
 
-Meteor.loginWithCas = function(callback) {
+function addParameterToURL(url, param){
+  var urlSplit = url.split('?');
+  return url+(urlSplit.length>0 ? '?':'&') + param;
+}
+
+Meteor.initCas = function(callback) {
+    const casTokenMatch = window.location.href.match(/[?&]casToken=([^&]+)/);
+    if (casTokenMatch == null) {
+        return;
+    }
+
+    window.history.pushState('', document.title, window.location.href.replace(/([&?])casToken=[^&]+[&]?/, '$1').replace(/[?&]+$/g, ''));
+
+    Accounts.callLoginMethod({
+        methodArguments: [{ cas: { credentialToken: casTokenMatch[1] } }],
+        userCallback: function(err){
+            if (err == null) {
+                // should we do anything on success?
+            }
+            if (callback != null) {
+                callback(err);
+            }
+        }
+    });
+}
+
+Meteor.loginWithCas = function(options, callback) {
 
     var credentialToken = Random.id();
 
@@ -11,10 +37,20 @@ Meteor.loginWithCas = function(callback) {
 
     var settings = Meteor.settings.public.cas;
 
+    var backURL = window.location.href.replace('#', '');
+    if (options != null && options.redirectUrl != null)
+        backURL = options.redirectUrl;
+
+    var serviceURL = addParameterToURL(backURL, 'casToken='+credentialToken);
+
     var loginUrl = settings.loginUrl +
-        "?" + (settings.service || "service") + "=" +
-        Meteor.absoluteUrl('_cas/') +
-        credentialToken;
+        "?" + (settings.serviceParam || "service") + "=" +
+        encodeURIComponent(serviceURL)
+
+    if (settings.popup == false) {
+      window.location = loginUrl;
+      return;
+    }
 
     var popup = openCenteredPopup(
         loginUrl,
@@ -72,5 +108,5 @@ var openCenteredPopup = function(url, width, height) {
   var newwindow = window.open(url, '_blank', features);
   if (newwindow.focus)
     newwindow.focus();
-return newwindow;
+  return newwindow;
 };
