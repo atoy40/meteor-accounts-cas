@@ -54,7 +54,7 @@ There is a pull-request to https://github.com/kcbanner/node-cas. If the pull-req
 
 `proxyUrl` is not required. Setup [ROOT_URL](http://docs.meteor.com/api/core.html#Meteor-absoluteUrl) environment variable instead.
 
-Is popup is disabled (== false), then it's required to execute Meteor.initCas in Meteor.startup of the client side.
+If popup is disabled (== false), then it's required to execute `Meteor.initCas()` in `Meteor.startup` of the client side.
 
 Then, to start authentication, you have to call the following method from the client (for example in a click handler) :
 
