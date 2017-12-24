@@ -16,8 +16,6 @@ WebApp.connectHandlers.use(function(req, res, next) {
 });
 
 middleware = function (req, res, next) {
-  // Make sure to catch any exceptions because otherwise we'd crash
-  // the runner
   try {
     var barePath = req.url.substring(0, req.url.indexOf('?'));
     var splitPath = barePath.split('/');
@@ -37,20 +35,23 @@ middleware = function (req, res, next) {
     }
 
     // validate ticket
-    casTicket(req, credentialToken, function() {
+    casTicket(req, credentialToken, function(err) {
+      if (err) {
+        console.error(err);
+      }
       closePopup(res);
     });
 
   } catch (err) {
-    console.log("account-cas: unexpected error : " + err.message);
     closePopup(res);
+    next(err);
   }
 };
 
 var casTicket = function (req, token, callback) {
   // get configuration
   if (!Meteor.settings.cas && !Meteor.settings.cas.validate) {
-    console.log("accounts-cas: unable to get configuration");
+    console.error("accounts-cas: unable to get configuration");
     callback();
   }
 
@@ -65,17 +66,13 @@ var casTicket = function (req, token, callback) {
 
   cas.validate(ticketId, function(err, status, username) {
     if (err) {
-      console.log("accounts-cas: error when trying to validate " + err);
+      callback(err);
+    } else if (status) {
+      _casCredentialTokens[token] = { id: username };
+      callback();
     } else {
-      if (status) {
-        console.log("accounts-cas: user validated " + username);
-        _casCredentialTokens[token] = { id: username };
-      } else {
-        console.log("accounts-cas: unable to validate " + ticketId);
-      }
+      callback(new Error("unable to validate CAS ticket " + ticketId));
     }
-
-    callback();
   });
 
   return; 
