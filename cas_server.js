@@ -68,7 +68,6 @@ var casTicket = function (req, token, callback) {
       console.log("accounts-cas: error when trying to validate " + err);
     } else {
       if (status) {
-        console.log("accounts-cas: user validated " + username);
         _casCredentialTokens[token] = { id: username };
       } else {
         console.log("accounts-cas: unable to validate " + ticketId);
