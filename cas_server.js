@@ -35,7 +35,10 @@ middleware = function (req, res, next) {
     }
 
     // validate ticket
-    casTicket(req, credentialToken, function() {
+    casTicket(req, credentialToken, function(err) {
+      if (err) {
+        console.error(err);
+      }
       closePopup(res);
     });
 
@@ -63,16 +66,13 @@ var casTicket = function (req, token, callback) {
 
   cas.validate(ticketId, function(err, status, username) {
     if (err) {
-      console.log("accounts-cas: error when trying to validate " + err);
+      callback(err);
+    } else if (status) {
+      _casCredentialTokens[token] = { id: username };
+      callback();
     } else {
-      if (status) {
-        _casCredentialTokens[token] = { id: username };
-      } else {
-        console.log("accounts-cas: unable to validate " + ticketId);
-      }
+      callback(new Error("unable to validate CAS ticket " + ticketId));
     }
-
-    callback();
   });
 
   return; 
