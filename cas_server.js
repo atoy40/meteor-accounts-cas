@@ -51,7 +51,7 @@ middleware = function (req, res, next) {
 var casTicket = function (req, token, callback) {
   // get configuration
   if (!Meteor.settings.cas && !Meteor.settings.cas.validate) {
-    console.log("accounts-cas: unable to get configuration");
+    console.error("accounts-cas: unable to get configuration");
     callback();
   }
 
