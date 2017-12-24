@@ -16,8 +16,6 @@ WebApp.connectHandlers.use(function(req, res, next) {
 });
 
 middleware = function (req, res, next) {
-  // Make sure to catch any exceptions because otherwise we'd crash
-  // the runner
   try {
     var barePath = req.url.substring(0, req.url.indexOf('?'));
     var splitPath = barePath.split('/');
@@ -42,8 +40,8 @@ middleware = function (req, res, next) {
     });
 
   } catch (err) {
-    console.log("account-cas: unexpected error : " + err.message);
     closePopup(res);
+    next(err);
   }
 };
 
